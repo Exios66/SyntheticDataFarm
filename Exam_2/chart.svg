@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1000" height="950" viewBox="0 0 1000 950" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Annotated Confusion Matrix</title>
+  <desc id="desc">4-cell confusion matrix with labels, short explanations, and legend: True Positive, False Positive, False Negative, True Negative.</desc>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="1000" height="950" fill="#ffffff"/>
+
+  <!-- Headers -->
+  <text x="500" y="35" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700" fill="#222" text-anchor="middle">Confusion Matrix</text>
+  <text x="500" y="60" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#444" text-anchor="middle">Predicted vs Actual — explanation &amp; annotated cells</text>
+
+  <!-- Axis labels (moved further from matrix) -->
+  <text x="80" y="140" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#222" font-weight="600">Actual</text>
+  <text x="850" y="120" font-family="Segoe UI, Arial, sans-serif" font-size="16" fill="#222" transform="rotate(-90 850,120)" font-weight="600">Predicted</text>
+
+  <!-- Row/Column headings (positioned clearly) -->
+  <text x="80" y="200" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#333" font-weight="600">Actual Positive</text>
+  <text x="80" y="420" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#333" font-weight="600">Actual Negative</text>
+
+  <text x="350" y="100" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#333" font-weight="600" text-anchor="middle">Predicted Positive</text>
+  <text x="750" y="100" font-family="Segoe UI, Arial, sans-serif" font-size="14" fill="#333" font-weight="600" text-anchor="middle">Predicted Negative</text>
+
+  <!-- Matrix grid with proper borders (larger cells, better spacing) -->
+  <g stroke="#333" stroke-width="2.5" fill="none">
+    <!-- Outer border -->
+    <rect x="180" y="150" width="640" height="320" fill="none"/>
+    
+    <!-- Inner vertical line -->
+    <line x1="500" y1="150" x2="500" y2="470"/>
+    
+    <!-- Inner horizontal line -->
+    <line x1="180" y1="310" x2="820" y2="310"/>
+  </g>
+  
+  <!-- Colored cells (larger for better readability) -->
+  <rect x="180" y="150" width="320" height="160" fill="#dff6e7" stroke="none"/> <!-- TP -->
+  <rect x="500" y="150" width="320" height="160" fill="#fdecea" stroke="none"/> <!-- FP -->
+  <rect x="180" y="310" width="320" height="160" fill="#fff4e6" stroke="none"/> <!-- FN -->
+  <rect x="500" y="310" width="320" height="160" fill="#e8f2ff" stroke="none"/> <!-- TN -->
+
+  <!-- Quadrant titles (positioned at top of each cell) -->
+  <text x="340" y="175" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#0a7a2a" text-anchor="middle">True Positive (TP)</text>
+  <text x="660" y="175" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#b40000" text-anchor="middle">False Positive (FP)</text>
+  <text x="340" y="335" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#cc7000" text-anchor="middle">False Negative (FN)</text>
+  <text x="660" y="335" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700" fill="#0a4ea6" text-anchor="middle">True Negative (TN)</text>
+
+  <!-- Explanations inside cells (better spacing, smaller font) -->
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#0a7a2a">
+    <text x="340" y="200" text-anchor="middle" font-weight="700" font-size="11">Hit / Power</text>
+    <text x="340" y="220" text-anchor="middle">Model predicts positive</text>
+    <text x="340" y="235" text-anchor="middle">and effect truly present</text>
+    <text x="340" y="250" text-anchor="middle" font-style="italic" font-size="9">Reject H₀ correctly</text>
+  </g>
+
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#8b0000">
+    <text x="660" y="200" text-anchor="middle" font-weight="700" font-size="11">Type I Error</text>
+    <text x="660" y="215" text-anchor="middle" font-weight="700" font-size="11">False Alarm</text>
+    <text x="660" y="235" text-anchor="middle">Model predicts positive</text>
+    <text x="660" y="250" text-anchor="middle" font-style="italic" font-size="9">Probability: α (alpha)</text>
+  </g>
+
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#cc7000">
+    <text x="340" y="360" text-anchor="middle" font-weight="700" font-size="11">Type II Error</text>
+    <text x="340" y="375" text-anchor="middle" font-weight="700" font-size="11">Miss</text>
+    <text x="340" y="395" text-anchor="middle">Model predicts negative</text>
+    <text x="340" y="410" text-anchor="middle">but effect truly exists</text>
+    <text x="340" y="430" text-anchor="middle" font-style="italic" font-size="9">Probability: β; Power = 1 − β</text>
+  </g>
+
+  <g font-family="Segoe UI, Arial, sans-serif" font-size="10" fill="#0a4ea6">
+    <text x="660" y="360" text-anchor="middle" font-weight="700" font-size="11">Correct Rejection</text>
+    <text x="660" y="380" text-anchor="middle">Model predicts negative</text>
+    <text x="660" y="395" text-anchor="middle">and no true effect</text>
+    <text x="660" y="415" text-anchor="middle" font-style="italic" font-size="9">Desirable when null holds</text>
+  </g>
+
+  <!-- Annotations: arrows (repositioned to avoid overlap with legend) -->
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 z" fill="#666"/>
+    </marker>
+  </defs>
+
+  <!-- Arrow from FP to note about alpha (moved to avoid overlap) -->
+  <line x1="780" y1="230" x2="900" y2="230" stroke="#b40000" stroke-width="2.5" marker-end="url(#arrow)" />
+  <text x="905" y="235" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#b40000" font-weight="600">α (Type I rate)</text>
+
+  <!-- Arrow from FN to power (moved up to avoid legend) -->
+  <line x1="340" y1="450" x2="200" y2="510" stroke="#cc7000" stroke-width="2.5" marker-end="url(#arrow)" />
+  <text x="120" y="518" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#444" font-weight="600">β (Type II) ↓ → Power ↑</text>
+
+  <!-- Legend (moved much further down with increased spacing) -->
+  <g transform="translate(100,600)">
+    <rect x="0" y="0" width="800" height="140" fill="#fafafa" stroke="#ddd" stroke-width="1.5" rx="8" />
+    <text x="14" y="28" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700" fill="#222">Legend &amp; Quick Formulas</text>
+
+    <g>
+      <rect x="14" y="45" width="20" height="16" fill="#dff6e7" stroke="#bbb" stroke-width="0.5"/>
+      <text x="42" y="57" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#222">TP (Hit) — correct detection (power)</text>
+
+      <rect x="320" y="45" width="20" height="16" fill="#fdecea" stroke="#bbb" stroke-width="0.5"/>
+      <text x="348" y="57" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#222">FP — Type I error (α)</text>
+
+      <rect x="550" y="45" width="20" height="16" fill="#fff4e6" stroke="#bbb" stroke-width="0.5"/>
+      <text x="578" y="57" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#222">FN — Type II error (β)</text>
+
+      <rect x="730" y="45" width="20" height="16" fill="#e8f2ff" stroke="#bbb" stroke-width="0.5"/>
+      <text x="758" y="57" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#222">TN — correct rejection</text>
+    </g>
+
+    <!-- Quick metrics (better spacing, larger font) -->
+    <text x="14" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#111" font-weight="600">
+      Power = TP / (TP + FN)
+    </text>
+    <text x="280" y="90" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#111" font-weight="600">
+      Type I error rate = FP / (FP + TN) = α
+    </text>
+    <text x="14" y="115" font-family="Segoe UI, Arial, sans-serif" font-size="13" fill="#111" font-weight="600">
+      Positive Predictive Value (PPV) = TP / (TP + FP)
+    </text>
+  </g>
+</svg>
