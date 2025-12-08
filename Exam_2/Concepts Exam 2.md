@@ -1,8 +1,8 @@
 # Concepts Exam 2/2
 
-# 🦡Madison/Curriculum/6️⃣1️⃣0️⃣/Exams
+## 🦡Madison/Curriculum/6️⃣1️⃣0️⃣/Exams
 
-# **UNIT 7 — CASE ANALYSIS (Leverage, Outliers, Influence)**
+## **UNIT 7 — CASE ANALYSIS (Leverage, Outliers, Influence)**
 
 ### **Why Case Analysis?**
 
@@ -100,7 +100,7 @@ $<1 →$ point adds noise
 ⠀
 ---
 
-# **UNIT 8 — MODEL ASSUMPTIONS**
+## **UNIT 8 — MODEL ASSUMPTIONS**
 
 ### **Five GLM Assumptions**
 
@@ -137,7 +137,7 @@ $<1 →$ point adds noise
 
 ---
 
-# **UNIT 9 — TRANSFORMATIONS**
+## **UNIT 9 — TRANSFORMATIONS**
 
 ### **Purpose**
 
@@ -195,7 +195,7 @@ Use quadrant-based visual pattern to match transform (log, sqrt, 1/X, X², etc.)
 
 ---
 
-# **UNITS 10–12 — INTERACTIONS**
+## **UNITS 10–12 — INTERACTIONS**
 
 ### **What is an Interaction?**
 
@@ -275,7 +275,7 @@ $X_1 \times X_2$
 
 ---
 
-# **UNIT 13 — CATEGORICAL PREDICTORS (3+ LEVELS)**
+## **UNIT 13 — CATEGORICAL PREDICTORS (3+ LEVELS)**
 
 ### **Why not use 1,2,3,…?**
 
@@ -317,7 +317,7 @@ Plug codes into regression formula.
 
 ---
 
-# **UNIT 14 — GENERALIZED LINEAR MODEL**
+## **UNIT 14 — GENERALIZED LINEAR MODEL**
 
 ### **When to Use GLM?**
 
@@ -353,7 +353,7 @@ Non-normal Y: binary, count, proportion.
 
 ---
 
-# **UNIT 15 — POWER ANALYSIS & VALIDITY**
+## **UNIT 15 — POWER ANALYSIS & VALIDITY**
 
 ## **Confusion Matrix**
 
@@ -412,9 +412,9 @@ Below is a **clean, professional Markdown visualization** of the *confusion matr
 
 ---
 
-# **📊**
+## **📊**
 
-# **Confusion Matrix (Markdown Visualization)**
+## **Confusion Matrix (Markdown Visualization)**
 
 |                                        | **Actual Positive** (Effect Present) | **Actual Negative** (No Effect)     |
 |----------------------------------------|--------------------------------------|-------------------------------------|
@@ -425,9 +425,9 @@ Below is a **clean, professional Markdown visualization** of the *confusion matr
 
 ---
 
-# **🔍**
+## **🔍**
 
-# **Explanation of Each Cell**
+## **Explanation of Each Cell**
 
 ### **1. True Positive (TP)**
 
@@ -489,9 +489,9 @@ Below is a **clean, professional Markdown visualization** of the *confusion matr
 
 ---
 
-# **🎯**
+## **🎯**
 
-# **Why the Confusion Matrix Matters in Statistical Validity**
+## **Why the Confusion Matrix Matters in Statistical Validity**
 
 Understanding this matrix is essential because it frames:
 
