@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="400" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="400" fill="white"/>
+  
+  <!-- Title -->
+  <text x="400" y="30" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle" fill="#333">Interaction Types Visualized</text>
+
+  <!-- Panel 1: No Interaction -->
+  <g transform="translate(50, 60)">
+    <rect x="0" y="0" width="200" height="200" fill="#f9f9f9" stroke="#ddd"/>
+    <text x="100" y="-10" text-anchor="middle" font-family="Arial" font-weight="bold" fill="#333">No Interaction</text>
+    
+    <!-- Axes -->
+    <line x1="20" y1="180" x2="180" y2="180" stroke="#333" stroke-width="2"/>
+    <line x1="20" y1="180" x2="20" y2="20" stroke="#333" stroke-width="2"/>
+    
+    <!-- Lines (Parallel) -->
+    <line x1="40" y1="140" x2="160" y2="80" stroke="#0275d8" stroke-width="3"/>
+    <line x1="40" y1="100" x2="160" y2="40" stroke="#d9534f" stroke-width="3"/>
+    
+    <text x="100" y="220" text-anchor="middle" font-family="Arial" font-size="12" fill="#555">Parallel Slopes</text>
+    <text x="100" y="240" text-anchor="middle" font-family="Arial" font-size="12" fill="#555">Additive Effects</text>
+  </g>
+
+  <!-- Panel 2: Ordinal Interaction -->
+  <g transform="translate(300, 60)">
+    <rect x="0" y="0" width="200" height="200" fill="#f9f9f9" stroke="#ddd"/>
+    <text x="100" y="-10" text-anchor="middle" font-family="Arial" font-weight="bold" fill="#333">Ordinal Interaction</text>
+    
+    <!-- Axes -->
+    <line x1="20" y1="180" x2="180" y2="180" stroke="#333" stroke-width="2"/>
+    <line x1="20" y1="180" x2="20" y2="20" stroke="#333" stroke-width="2"/>
+    
+    <!-- Lines (Non-parallel, no cross) -->
+    <line x1="40" y1="150" x2="160" y2="120" stroke="#0275d8" stroke-width="3"/>
+    <line x1="40" y1="100" x2="160" y2="30" stroke="#d9534f" stroke-width="3"/>
+    
+    <text x="100" y="220" text-anchor="middle" font-family="Arial" font-size="12" fill="#555">Non-Parallel Slopes</text>
+    <text x="100" y="240" text-anchor="middle" font-family="Arial" font-size="12" fill="#555">Lines do not cross</text>
+  </g>
+
+  <!-- Panel 3: Disordinal Interaction -->
+  <g transform="translate(550, 60)">
+    <rect x="0" y="0" width="200" height="200" fill="#f9f9f9" stroke="#ddd"/>
+    <text x="100" y="-10" text-anchor="middle" font-family="Arial" font-weight="bold" fill="#333">Disordinal (Crossover)</text>
+    
+    <!-- Axes -->
+    <line x1="20" y1="180" x2="180" y2="180" stroke="#333" stroke-width="2"/>
+    <line x1="20" y1="180" x2="20" y2="20" stroke="#333" stroke-width="2"/>
+    
+    <!-- Lines (Cross) -->
+    <line x1="40" y1="140" x2="160" y2="40" stroke="#0275d8" stroke-width="3"/>
+    <line x1="40" y1="40" x2="160" y2="140" stroke="#d9534f" stroke-width="3"/>
+    
+    <text x="100" y="220" text-anchor="middle" font-family="Arial" font-size="12" fill="#555">Lines Cross</text>
+    <text x="100" y="240" text-anchor="middle" font-family="Arial" font-size="12" fill="#555">Effect reverses direction</text>
+  </g>
+
+  <!-- Legend -->
+  <g transform="translate(300, 320)">
+    <rect x="0" y="0" width="20" height="20" fill="#0275d8"/>
+    <text x="30" y="15" font-family="Arial" font-size="14">Group A</text>
+    <rect x="100" y="0" width="20" height="20" fill="#d9534f"/>
+    <text x="130" y="15" font-family="Arial" font-size="14">Group B</text>
+  </g>
+</svg>

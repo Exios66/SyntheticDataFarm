@@ -19,6 +19,7 @@ The three primary characteristics that researchers focus on in case analysis are
 ## When doing univariate and bivariate exploratory data analysis, what plots and summary statistics do we typically review? Which plots are good for which types of variables?
 
 Univariate exploratory data analysis often reviews summary statistics such as:
+
 - Mean
 - Standard deviation (SD)
 - Minimum (p0)

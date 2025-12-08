@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="500" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="500" fill="white"/>
+  
+  <!-- Title -->
+  <text x="400" y="40" font-family="Arial" font-size="24" font-weight="bold" text-anchor="middle" fill="#333">Tukey's Ladder of Power Transformations</text>
+  
+  <!-- Central Axis (p=1) -->
+  <line x1="100" y1="250" x2="700" y2="250" stroke="#333" stroke-width="2" stroke-dasharray="5,5"/>
+  <text x="400" y="240" font-family="Arial" font-size="16" font-weight="bold" text-anchor="middle" fill="#333">No Transformation (p = 1)</text>
+  <text x="400" y="265" font-family="Arial" font-size="14" text-anchor="middle" fill="#666">Y (Raw Data)</text>
+
+  <!-- UP the Ladder -->
+  <g transform="translate(0, -100)">
+    <!-- Arrow Up -->
+    <path d="M400 200 L400 80" stroke="#d9534f" stroke-width="4" fill="none" marker-end="url(#arrowUp)"/>
+    
+    <text x="420" y="150" font-family="Arial" font-size="18" fill="#d9534f" font-weight="bold">UP the Ladder (p > 1)</text>
+    <text x="420" y="170" font-family="Arial" font-size="14" fill="#555">Spreads large values, compresses small</text>
+    <text x="420" y="190" font-family="Arial" font-size="14" fill="#555">Fixes: Negative Skew ( Left Tail )</text>
+    
+    <!-- Transformations -->
+    <text x="380" y="120" font-family="Arial" font-size="16" text-anchor="end" fill="#333">Y³ (Cube)</text>
+    <text x="380" y="160" font-family="Arial" font-size="16" text-anchor="end" fill="#333">Y² (Square)</text>
+  </g>
+
+  <!-- DOWN the Ladder -->
+  <g transform="translate(0, 100)">
+    <!-- Arrow Down -->
+    <path d="M400 300 L400 420" stroke="#0275d8" stroke-width="4" fill="none" marker-end="url(#arrowDown)"/>
+    
+    <text x="420" y="350" font-family="Arial" font-size="18" fill="#0275d8" font-weight="bold">DOWN the Ladder (p < 1)</text>
+    <text x="420" y="370" font-family="Arial" font-size="14" fill="#555">Compresses large values, spreads small</text>
+    <text x="420" y="390" font-family="Arial" font-size="14" fill="#555">Fixes: Positive Skew ( Right Tail )</text>
+    
+    <!-- Transformations -->
+    <text x="380" y="340" font-family="Arial" font-size="16" text-anchor="end" fill="#333">√Y (Square Root)</text>
+    <text x="380" y="380" font-family="Arial" font-size="16" text-anchor="end" fill="#333">log(Y) (Logarithm)</text>
+    <text x="380" y="420" font-family="Arial" font-size="16" text-anchor="end" fill="#333">-1/Y (Inverse)</text>
+  </g>
+
+  <!-- Definitions -->
+  <defs>
+    <marker id="arrowUp" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 L5,5 Z" fill="#d9534f" />
+    </marker>
+    <marker id="arrowDown" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 L5,5 Z" fill="#0275d8" />
+    </marker>
+  </defs>
+</svg>

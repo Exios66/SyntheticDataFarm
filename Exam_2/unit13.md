@@ -45,7 +45,7 @@ $$
 
 - **Regressor Estimates ($b_j$):** Each $b_j$ represents the contrast (mean difference) between the target group (coded 1 for that regressor) and the reference group.
 
-    - For the 'alcohol' group:
+  - For the 'alcohol' group:
       $$
       \hat{Y}_{alcohol} = b_0 + b_1(1) + b_2(0) = b_0 + b_1
       $$

@@ -1,0 +1,517 @@
+---
+title: "Exam 2 Comprehensive Review Study Guide"
+subtitle: "[📓 NotebookLM Course Material](https://notebooklm.google.com/notebook/0681a708-d9b5-4eef-a2f9-35e5445a9b0b)"
+author: "Jack J. Burleson"
+date: "`r Sys.Date()`"
+format: 
+  html:
+    toc: true
+    toc-depth: 3
+    theme: cosmo
+    embed-resources: true
+    code-tools: true
+    code-fold: show
+editor: visual
+execute:
+  warning: false
+  message: false
+---
+
+```{r setup}
+#| label: setup
+#| include: false
+
+# Load required packages
+library(tidyverse)
+library(broom)
+library(car)
+library(ggplot2)
+library(MASS)
+library(pwr)
+library(gridExtra)
+
+# Set theme for plots
+theme_set(theme_classic())
+
+# Set global chunk options
+knitr::opts_chunk$set(
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.width = 8,
+  fig.height = 5
+)
+```
+
+# Introduction
+
+This study guide covers Units 7 through 15 for Exam 2. It integrates conceptual questions with practical R code examples, visualizations, and demonstrations.
+
+## Topics Covered
+
+1.  **Unit 7:** Case Analysis (Leverage, Outliers, Influence)
+2.  **Unit 8:** Model Assumptions & Diagnostics
+3.  **Unit 9:** Transformations
+4.  **Units 10-12:** Interactions (Continuous & Categorical)
+5.  **Unit 13:** Categorical Predictors (3+ Levels)
+6.  **Unit 14:** Generalized Linear Models (Logistic & Poisson)
+7.  **Unit 15:** Power Analysis & Statistical Validity
+
+---
+
+# Unit 7: Case Analysis
+
+Case analysis is the process of identifying unusual or excessively influential data points that may bias results or reduce the power to detect effects.
+
+## Key Concepts
+
+### 1. Leverage
+Leverage identifies outliers in the predictor ($X$) space. It measures how far an observation is from the centroid of the predictors.
+
+- **Metric:** Hat values ($h_i$)
+- **Range:** $1/N$ to $1$
+- **Mean:** $P/N$ (where $P$ is parameters including intercept, $N$ is sample size)
+- **Cutoffs:** $> 2P/N$ or $> 3P/N$ often considered high
+- **Impact:** High leverage points decrease predictor variance (good) but can be influential if they also have large residuals.
+
+### 2. Regression Outliers
+Observations with extreme values on the outcome variable ($Y$) relative to the prediction.
+
+- **Metrics:**
+  - **Raw Residual:** $e_i = Y_i - \hat{Y}_i$ (scale dependent)
+  - **Standardized Residual:** $e_i / \hat{\sigma}$
+  - **Studentized Residual (Preferred):** $e_i / \hat{\sigma}_{(i)}\sqrt{1-h_i}$ (uses delete-one standard error)
+- **Cutoffs:** $|studentized| > 2$ or $3$
+- **Impact:** Can inflate standard errors (reducing power) and bias intercepts/slopes.
+
+### 3. Influence
+Observations that substantially change the model estimates when removed. Influence is a combination of leverage and discrepancy (outlier-ness).
+
+- **Metrics:**
+  - **Cook's Distance ($D$):** Overall measure of change in coefficients. Cutoff: $> 4/N$ or $> 1$.
+  - **DFFITS:** Change in predicted value for a point. Cutoff: $> 2\sqrt{P/N}$.
+  - **DFBETAS:** Change in specific coefficients. Cutoff: $> 2/\sqrt{N}$.
+- **Diagnostic Plots:**
+  - **Added Variable Plot:** Plots partial residual of $Y$ against partial residual of $X$. Useful for identifying influential points and visualizing partial correlations.
+
+## R Demonstration
+
+```{r case-analysis-demo}
+# Generate synthetic data
+set.seed(123)
+n <- 50
+x <- rnorm(n)
+y <- 1 + 2*x + rnorm(n)
+
+# Add an influential point (high leverage + outlier)
+x[51] <- 4
+y[51] <- 0
+data_case <- data.frame(x, y)
+
+# Fit model
+model_case <- lm(y ~ x, data = data_case)
+
+# Calculate diagnostics
+data_augmented <- augment(model_case) %>%
+  mutate(
+    row_id = row_number(),
+    leverage = .hat,
+    studentized_resid = .std.resid, # broom uses standardized, but often close to studentized. 
+    # For strict studentized: rstudent(model_case)
+    rstudent = rstudent(model_case),
+    cooks_d = .cooksd
+  )
+
+# View diagnostics for the outlier (row 51)
+data_augmented %>% 
+  filter(row_id == 51) %>%
+  select(row_id, leverage, rstudent, cooks_d) %>%
+  knitr::kable(digits = 3)
+
+# Visualizing Influence
+ggplot(data_augmented, aes(x = x, y = y)) +
+  geom_point(aes(size = cooks_d, color = abs(rstudent) > 2)) +
+  geom_smooth(method = "lm", se = FALSE, color = "grey") +
+  geom_smooth(data = data_case[-51,], method = "lm", se = FALSE, color = "blue", linetype = "dashed") +
+  labs(title = "Influence Plot", 
+       subtitle = "Grey Solid = Full Model, Blue Dashed = Without Outlier",
+       color = "Outlier (|r*| > 2)", size = "Cook's D") +
+  theme_minimal()
+```
+
+---
+
+# Unit 8: Model Assumptions & Diagnostics
+
+The General Linear Model (GLM) relies on five key assumptions to provide valid inferences (unbiased coefficients, accurate standard errors).
+
+## The Five Assumptions
+
+| Assumption | Description | Violation Consequence |
+|------------|-------------|-----------------------|
+| **1. Exact X** | Predictors measured without error | Biased coefficients (attenuation bias) |
+| **2. Independence** | Residuals are independent | Inaccurate SEs, invalid test statistics |
+| **3. Normality** | Residuals are normally distributed | Inefficient SEs (lower power), inaccurate CIs in small samples |
+| **4. Constant Variance** | Residuals have constant variance (Homoscedasticity) | Inaccurate SEs (usually too small), invalid tests |
+| **5. Linearity** | Mean of residuals is zero for all $\hat{Y}$ | Biased coefficients, model misspecification |
+
+## Diagnostic Plots
+
+We use residual plots to check these assumptions.
+
+1.  **QQ Plot:** Checks **Normality**. Points should follow the 45-degree line.
+2.  **Spread-Location Plot:** Checks **Constant Variance**. Plots $\sqrt{|residuals|}$ vs $\hat{Y}$. No trend/funneling should be visible.
+3.  **Component + Residual (Partial Residual) Plot:** Checks **Linearity** for specific predictors. Plots partial residuals vs $X$.
+
+## R Demonstration
+
+```{r assumptions-demo}
+# Generate data with slight non-linearity
+set.seed(42)
+n <- 100
+x1 <- runif(n, 0, 10)
+y_nonlinear <- 3 + 2*x1 + 0.5*x1^2 + rnorm(n, 0, 2)
+
+model_assump <- lm(y_nonlinear ~ x1)
+
+# 1. QQ Plot (Normality)
+car::qqPlot(model_assump, main = "QQ Plot")
+
+# 2. Spread-Location Plot (Constant Variance)
+# Manually creating to show logic
+augment(model_assump) %>%
+  ggplot(aes(x = .fitted, y = sqrt(abs(.std.resid)))) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  labs(title = "Spread-Location Plot", y = "Sqrt(|Standardized Residuals|)", x = "Fitted Values")
+
+# 3. Component + Residual Plots (Linearity)
+car::crPlots(model_assump, main = "Component + Residual Plot") 
+# Note the curvature in the pink line suggesting the quadratic term is missing
+```
+
+## Solutions for Violations
+
+-   **Non-normality / Heteroscedasticity:** Transform $Y$ (see Unit 9), use Weighted Least Squares (WLS), or robust standard errors.
+-   **Non-linearity:** Transform $X$ (e.g., polynomials), use GAMs.
+
+---
+
+# Unit 9: Transformations
+
+Transformations are used to address violations of assumptions, particularly non-normality, non-constant variance, and non-linearity.
+
+## The Ladder of Power Transformations
+
+We use transformations of the form $Y^p$ (or $X^p$).
+
+-   **$p = 1$:** No transformation.
+-   **$p < 1$ (Down the ladder):** $\log(Y)$, $\sqrt{Y}$, $1/Y$. Compresses large values, spreads small values. Used for **positive skew** and **increasing spread**.
+-   **$p > 1$ (Up the ladder):** $Y^2$, $Y^3$. Spreads large values, compresses small values. Used for **negative skew** and **decreasing spread**.
+
+![Ladder of Power Transformations](ladder_of_powers.svg)
+
+## Box-Cox Transformation
+
+The Box-Cox method finds the optimal power $\lambda$ (or $p$) to normalize the residuals. The function is:
+
+$$ Y^{(\lambda)} = \frac{Y^\lambda - 1}{\lambda} \text{ (if } \lambda \neq 0\text{), } \ln(Y) \text{ (if } \lambda = 0\text{)} $$
+
+**Benefits:**
+1.  Preserves order/direction.
+2.  Continuously differentiable with respect to $\lambda$.
+3.  Includes the log transformation naturally.
+
+## "Starts"
+
+A constant added to data ($Y + \text{start}$) before transforming.
+-   **Uses:**
+    1.  Ensure all values are positive (since $\log$ and roots require positive numbers).
+    2.  Adjust the ratio of max/min values to make transformations more effective.
+
+## Linearity and the Bulging Rule (Mosteller & Tukey)
+
+Used to decide whether to transform $X$, $Y$, or both to linearize a relationship based on the curve's shape.
+
+-   **Up/Left:** Transform $Y$ up ($Y^2$), $X$ down ($\log X$)
+-   **Up/Right:** Transform $Y$ up ($Y^2$), $X$ up ($X^2$)
+-   **Down/Left:** Transform $Y$ down ($\log Y$), $X$ down ($\log X$)
+-   **Down/Right:** Transform $Y$ down ($\log Y$), $X$ up ($X^2$)
+
+## R Demonstration
+
+```{r boxcox-demo}
+# Generate heteroscedastic data
+set.seed(999)
+x <- runif(100, 1, 10)
+y <- exp(0.5 * x) + rnorm(100, 0, 5) # Exponential growth implies log transform needed
+
+# 1. Box-Cox to find optimal lambda
+boxcox_result <- MASS::boxcox(lm(y ~ x), lambda = seq(-2, 2, 0.1))
+optimal_lambda <- boxcox_result$x[which.max(boxcox_result$y)]
+
+cat("Optimal Lambda:", round(optimal_lambda, 2))
+
+# 2. Apply Transformation (approx log since lambda is close to 0)
+y_trans <- log(y)
+
+# 3. Compare Plots
+p1 <- ggplot(data.frame(x, y), aes(x, y)) + 
+  geom_point() + geom_smooth(method="lm", se=FALSE) + 
+  ggtitle("Original Data")
+
+p2 <- ggplot(data.frame(x, y_trans), aes(x, y_trans)) + 
+  geom_point() + geom_smooth(method="lm", se=FALSE) + 
+  ggtitle("Transformed Data (Log Y)")
+
+grid.arrange(p1, p2, ncol = 2)
+```
+
+---
+
+# Units 10-12: Interactions
+
+An interaction occurs when the effect of one predictor ($X_1$) on $Y$ depends on the level of another predictor ($X_2$). The model is:
+
+$$ Y = b_0 + b_1 X_1 + b_2 X_2 + b_3 (X_1 \times X_2) + e $$
+
+## Interpretation of Parameters
+
+| Parameter | Interpretation |
+|-----------|----------------|
+| $b_0$ (Intercept) | Predicted $Y$ when $X_1=0$ and $X_2=0$. |
+| $b_1$ (Main Effect $X_1$) | Simple slope of $X_1$ when **$X_2 = 0$**. |
+| $b_2$ (Main Effect $X_2$) | Simple slope of $X_2$ when **$X_1 = 0$**. |
+| $b_3$ (Interaction) | Change in the slope of $X_1$ for a 1-unit increase in $X_2$ (and vice versa). |
+
+**Note on Rescaling/Centering:**
+-   **$b_3$** does not change when predictors are centered/rescaled.
+-   **$b_1, b_2, b_0$** DO change because 0 is now at a different location (the mean).
+
+## Types of Interactions
+
+### 1. Quantitative $\times$ Quantitative
+-   **Regressor:** Product of centered variables.
+-   **Vis:** Simple slopes plot (lines for $X_1$ at Mean, +1SD, -1SD of $X_2$).
+
+### 2. Categorical $\times$ Categorical
+-   **Regressor:** Product of dummy or contrast codes.
+-   **Vis:** Interaction plot (non-parallel lines connect cell means).
+
+### 3. Quantitative $\times$ Categorical
+-   **Regressor:** Product of centered Quant var and Cat codes.
+-   **Interpretation:** $b_3$ represents difference in slope of Quant var between groups.
+
+![Interaction Types](interaction_types.svg)
+
+## R Demonstration
+
+```{r interactions-demo}
+# Generate Interaction Data
+set.seed(55)
+n <- 100
+# Quant x Quant
+x1 <- rnorm(n)
+x2 <- rnorm(n)
+# Interaction term: effect of x1 is stronger when x2 is high
+y_int <- 0 + 1*x1 + 1*x2 + 2*x1*x2 + rnorm(n)
+
+# Mean Center
+x1_c <- x1 - mean(x1)
+x2_c <- x2 - mean(x2)
+
+# Fit Model
+mod_int <- lm(y_int ~ x1_c * x2_c)
+summary(mod_int)
+
+# Visualize Simple Slopes (Quant x Quant)
+# Create prediction data
+pred_data <- expand.grid(
+  x1_c = seq(min(x1_c), max(x1_c), length.out = 100),
+  x2_c = c(-1, 0, 1) # -1SD, Mean, +1SD approx
+)
+pred_data$pred <- predict(mod_int, newdata = pred_data)
+
+ggplot(pred_data, aes(x = x1_c, y = pred, color = factor(x2_c))) +
+  geom_line(size = 1) +
+  labs(title = "Simple Slopes of X1 at levels of X2", 
+       color = "X2 Level (SD)", y = "Predicted Y", x = "X1 (Centered)")
+
+# Testing Interaction Significance
+mod_add <- lm(y_int ~ x1_c + x2_c)
+anova(mod_add, mod_int) # Comparison of additive vs interaction model
+```
+
+---
+
+# Unit 13: Categorical Predictors (>2 Levels)
+
+We cannot use sequential numbers (1, 2, 3) for nominal categories. We use coding systems.
+
+## Coding Systems
+
+1.  **Dummy Coding (Reference Group):**
+    -   Reference group gets 0 on all regressors.
+    -   Each regressor represents the difference between a specific group and the reference.
+    -   Non-orthogonal.
+
+2.  **Contrast Coding:**
+    -   Designed to test specific hypotheses.
+    -   **Orthogonal** if $\sum \lambda_i = 0$ and $\sum \lambda_{1i}\lambda_{2i} = 0$.
+    -   Allows partition of $R^2$.
+
+## Controlling Type I Error (Family-wise Error Rate)
+
+When making multiple comparisons ($C$), the chance of at least one Type I error increases ($\alpha_{FW} \approx 1 - (1-\alpha)^C$).
+
+| Method | Use Case | Mechanism |
+|--------|----------|-----------|
+| **Fisher's LSD** | 3 groups only | Test Omnibus F first. If sig, do pairwise t-tests (no correction). |
+| **Bonferroni** | Planned comparisons (few) | $\alpha_{new} = \alpha / C$. Very conservative. |
+| **Holm-Bonferroni** | Planned (better power) | Rank p-values. Test smallest at $\alpha/C$, next at $\alpha/(C-1)$. |
+| **Scheffé** | Post-hoc / Exploratory | Adjusts critical F based on number of groups. Most conservative. |
+
+## R Demonstration
+
+```{r categorical-demo}
+# Generate data: 3 Groups
+set.seed(123)
+df_cat <- data.frame(
+  group = factor(rep(c("A", "B", "C"), each = 20)),
+  y = c(rnorm(20, 10), rnorm(20, 12), rnorm(20, 15))
+)
+
+# 1. Dummy Coding (Default in R)
+# Reference = A (alphabetical)
+mod_dummy <- lm(y ~ group, data = df_cat)
+summary(mod_dummy) 
+# Intercept = Mean A
+# groupB = Mean B - Mean A
+# groupC = Mean C - Mean A
+
+# 2. Contrast Coding (Orthogonal)
+# C1: A vs B (ignore C) -> 1, -1, 0
+# C2: (A+B) vs C -> -1, -1, 2
+contrasts(df_cat$group) <- cbind(
+  c1 = c(1, -1, 0),
+  c2 = c(-1, -1, 2)
+)
+mod_contrast <- lm(y ~ group, data = df_cat)
+summary(mod_contrast)
+
+# 3. Multiple Comparisons (Pairwise T-tests) with Correction
+pairwise.t.test(df_cat$y, df_cat$group, p.adjust.method = "holm")
+pairwise.t.test(df_cat$y, df_cat$group, p.adjust.method = "bonferroni")
+```
+
+---
+
+# Unit 14: Generalized Linear Models (GLM)
+
+GLMs extend the linear model to variables that are not normally distributed (e.g., dichotomous or count data).
+
+## Logistic Regression (Dichotomous Outcome)
+
+-   **Distribution:** Binomial
+-   **Link Function:** Logit ($\ln(\text{Odds})$)
+-   **Equation:** $\ln(\frac{p}{1-p}) = b_0 + b_1 X$
+
+### Conversions
+
+1.  **Probability ($p$) to Odds:** $\text{Odds} = p / (1-p)$
+2.  **Odds to Probability:** $p = \text{Odds} / (1 + \text{Odds})$
+3.  **Logit to Odds:** $\text{Odds} = e^{\text{Logit}}$
+
+### Interpreting Coefficients
+
+-   **$b_0$ (Intercept):** Log-odds of the outcome when $X=0$.
+-   **$b_1$ (Slope):** Change in log-odds for a 1-unit increase in $X$.
+-   **Odds Ratio ($e^{b_1}$):** Multiplicative change in odds for a 1-unit increase in $X$.
+    -   $OR > 1$: Increases likelihood.
+    -   $OR < 1$: Decreases likelihood.
+
+## Poisson Regression (Count Outcome)
+
+-   **Distribution:** Poisson
+-   **Link Function:** Log ($\ln(\lambda)$)
+-   **Use:** Count data (non-negative integers), especially rare events.
+
+## R Demonstration
+
+```{r glm-demo}
+# Generate Logistic Data
+set.seed(42)
+n <- 100
+x <- rnorm(n)
+z <- 0 + 2*x  # Log-odds
+p <- 1 / (1 + exp(-z)) # Probability
+y <- rbinom(n, 1, p) # Binary outcome
+
+# Fit Logistic Model
+mod_log <- glm(y ~ x, family = binomial(link = "logit"))
+summary(mod_log)
+
+# Odds Ratios
+exp(coef(mod_log))
+
+# Visualization (Sigmoid Curve)
+# Create prediction frame
+pred_dat <- data.frame(x = seq(min(x), max(x), length.out = 100))
+pred_dat$prob <- predict(mod_log, newdata = pred_dat, type = "response")
+
+ggplot(pred_dat, aes(x = x, y = prob)) +
+  geom_line(color = "blue", size = 1) +
+  geom_point(data = data.frame(x, y), aes(y = y), alpha = 0.2) +
+  labs(title = "Logistic Regression Probability Curve", 
+       y = "Predicted Probability P(Y=1)", x = "Predictor X")
+```
+
+---
+
+# Unit 15: Power Analysis & Statistical Validity
+
+Statistical validity concerns the accuracy of conclusions drawn from a statistical test.
+
+## The Confusion Matrix
+
+This diagram illustrates the relationship between the true state of nature and our statistical decision.
+
+![Annotated Confusion Matrix](chart.svg)
+
+## Key Concepts
+
+-   **Type I Error ($\alpha$):** False Positive. Rejecting Null when Null is True.
+-   **Type II Error ($\beta$):** False Negative. Failing to reject Null when Null is False.
+-   **Power ($1 - \beta$):** Probability of correctly rejecting a False Null.
+
+## Factors Increasing Power
+
+1.  **Reduce Error Variance ($MSE$):** Better measurement, better control.
+2.  **Increase Sample Size ($N$):** Narrows sampling distribution ($SE = s / \sqrt{N}$).
+3.  **Increase $\alpha$:** Trade-off with Type I error.
+4.  **Increase Predictor Variance:** Stronger manipulation/sampling of $X$.
+
+## Problems with Low Power Studies
+
+1.  High Type II error rate.
+2.  **Effect Size Inflation:** Significant results in low-power studies tend to overestimate the true effect size ("Winner's Curse").
+3.  **Low Positive Predictive Value (PPV):** A significant result is less likely to be true.
+
+## R Demonstration
+
+```{r power-demo}
+# A Priori Power Analysis (t-test)
+# How many subjects needed to detect medium effect (d=0.5) with 80% power?
+pwr.t.test(d = 0.5, power = 0.80, sig.level = 0.05, type = "two.sample")
+
+# Power Curve
+effect_sizes <- seq(0.1, 1.0, 0.1)
+powers <- sapply(effect_sizes, function(d) pwr.t.test(d=d, n=20, sig.level=0.05)$power)
+
+data.frame(EffectSize = effect_sizes, Power = powers) %>%
+  ggplot(aes(x = EffectSize, y = Power)) +
+  geom_line() +
+  geom_point() +
+  geom_hline(yintercept = 0.8, linetype = "dashed", color = "red") +
+  labs(title = "Power Curve (N=20 per group)", y = "Power", x = "Effect Size (Cohen's d)")
+```
